@@ -1,0 +1,17 @@
+{
+  "name": "hitalk",
+  "version": "1.0.0",
+  "description": "talk",
+  "main": "socketServer.js",
+  "dependencies": {
+    "express": "^4.15.3",
+    "morgan": "^1.8.2",
+    "websocket": "^1.0.24"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node socketServer.js"
+  },
+  "author": "sudhanshu",
+  "license": "MIT"
+}

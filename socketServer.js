@@ -3,13 +3,15 @@ var morgan = require("morgan");
 var fs = require("fs");
 var express = require("express");
 
+var port = process.env.PORT || 5000;
+
 var app = express();
 
 app.use(express.static(__dirname));
 
 app.use(morgan("combined"));
 
-var server = http.createServer(app).listen(5000);
+var server = http.createServer(app).listen(port);
 
 
 
