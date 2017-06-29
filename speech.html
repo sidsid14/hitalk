@@ -1,0 +1,157 @@
+<html>
+<head>
+<title>Speech Recognition</title>      
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald" >
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Arvo:400,700,400italic,700italic" >
+<link rel="stylesheet"  href="https://bootswatch.com/cerulean/bootstrap.min.css" >
+    
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script>
+    $(document).ready(function(){
+        $(".processing").hide();
+        $(".result").hide();
+        var recognizing = false;
+        var speech = new webkitSpeechRecognition() || speechRecognition();
+        speech.lang = 'en-in';
+        speech.interimResults = true;
+        
+        $("#btnStart").click(function(){
+            $("#transcription").html("");
+            
+            if(!recognizing){
+                speech.start();    
+            }
+            
+            speech.onstart = function(){
+              $("#recImage").attr("src","./recording.gif");
+              $(".processing").show();
+              $(".result").hide();
+              $("#interim").html("");
+              recognizing = true;
+              console.log("speaking");
+            };
+            
+            speech.onresult = function(event){
+                
+                for(var i=event.resultIndex; i<event.results.length;++i){
+                    if(event.results[i].isFinal){
+                        var data = $("#transcription").val() + event.results[i][0].transcript;
+                         $("#transcription").html(data);
+                        
+                        $.ajax({
+                            url:"/getJson",
+                            data:{value: data},
+                            method:"POST",
+                            success: (result) => {
+                                console.log(result);
+                                $(".data").html(result);
+                            }
+                        });
+                        
+                        
+                    }else{
+                        var data = $("#interim").val() + event.results[i][0].transcript;
+                        $("#interim").html(data);
+                    }
+                }
+                
+            };
+            
+            speech.onend = function(){
+                recognizing = false;
+                $("#recImage").attr("src","./recording2.png");
+                $(".processing").hide();
+                $(".result").show();
+                console.log("Recognition Stopped");
+            };
+            
+            console.log("Recognition Started");
+        });
+        
+//        $("#btnStop").click(function(){
+//            speech.stop();
+//            recognizing = false;
+//            
+//            console.log("Recognition Stopped");
+//        });
+    });
+</script>
+<style>
+    body{
+        background-color:black;
+    } 
+
+    h1{
+        font-family:'Arvo';
+        text-align:center;
+        margin-top:50px !important;
+        color:#009346;
+        font-size:55px;
+        font-weight:bold;
+    }
+    .center{
+        text-align:center;
+        margin:0 auto;
+    }
+    .data{
+        font-family:'Oswald';
+        font-size:15px;
+        padding:10px;
+        background-color: black !important;
+        color:whitesmoke !important;
+    }
+    
+    .myContainer{
+        text-align: center !important;
+        
+    }
+    .myContainer pre{
+        display: inline-block !important;
+        text-align: left !important;
+    }
+    span{
+        font-family:'Oswald';
+        color:#fff;
+        font-size:22px;
+        padding:10px;
+     }
+</style>
+</head>
+    <body>
+        <div class="container-fluid ">
+             <div class="center">
+                <h1>Speech API</h1>
+                <br /><br />
+                 
+                 <a id="btnStart">
+                    <img id="recImage" src="./recording2.png" width="100px">
+                 </a>
+                 <br/><br/> 
+        
+                <div class="processing">
+                 <h2>Interim Transcription</h2>
+                        <span id="interim">
+
+                        </span>
+                </div>
+                 
+                <div class="result">
+                <h2>Final Transcription</h2>
+                        <span id="transcription">
+
+                        </span>
+                      
+                </div>
+                <br/><br/>     
+                
+                 <div class="myContainer">
+                     <pre class="data"></pre>
+                 </div>
+              </div>
+          </div>
+    
+    </body>
+</html>

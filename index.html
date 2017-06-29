@@ -1,0 +1,386 @@
+<html>
+<head>
+    <title>WebSockets Example</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald" >
+    
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Arvo:400,700,400italic,700italic" >
+    
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet"  href="https://bootswatch.com/cerulean/bootstrap.min.css" >
+    <script>
+        var ws = new WebSocket("ws://192.168.1.43:5000", "echo-protocol");
+        var username ="";
+        $(document).ready(function(){
+            
+            $("#snackbar").addClass("show");
+            
+            var recognizing = false;
+            var speech = new webkitSpeechRecognition() || speechRecognition();
+            speech.lang = 'en-in';
+            speech.interimResults = true;
+
+        $("#btnStart").click(function(){
+                    
+            if(!recognizing){
+                speech.start();    
+            }
+            
+            speech.onstart = function(){
+              $("#recImage").attr("src","./recording.gif");
+              recognizing = true;
+              console.log("speaking");
+            };
+            
+            speech.onresult = function(event){
+                
+                for(var i=event.resultIndex; i<event.results.length;++i){
+                    if(event.results[i].isFinal){
+                        var data =  event.results[i][0].transcript;
+                        $("#message").val("");
+                        $("#message").val(data);
+                        sendMessage();
+//                        $.ajax({
+//                            url:"/getJson",
+//                            data:{value: data},
+//                            method:"POST",
+//                            success: (result) => {
+//                                console.log(result);
+//                                $(".data").html(result);
+//                            }
+//                        });
+                        
+                        
+                    }else{
+                        $("#message").val("");
+                        var data = $("#message").val() + event.results[i][0].transcript;
+                        $("#message").val(data);
+                    }
+                }
+                
+            };
+            
+            speech.onend = function(){
+                recognizing = false;
+                $("#recImage").attr("src","./recording2.png");
+                console.log("Recognition Stopped");
+            };
+            
+            console.log("Recognition Started");
+        });            
+            
+        });//End of ready function
+        
+        $(document).keypress(function(e) {
+            var message = $("#message").val();
+            if(e.which == 13 && message !== "") {
+               sendMessage();
+            }
+            
+        });
+        
+        function sendMessage(){
+            var message = document.getElementById("message").value;
+            message =message + "@@"+username;
+            console.log(message);
+            ws.send(message);
+            $("#message").val("");
+        }
+        
+        ws.addEventListener("message", function(e){
+           var msg = e.data;
+            var data = JSON.parse(msg);
+             var backColor = data["color"];
+             var html ="";
+            
+            
+              if(data["sendBy"] == "Me"){
+                  html += '<tr align="right"><td width="200"><span class="round" style=" background-color:'+ backColor+';">'+data["text"]+'<sub style="color:black;padding:2px;">'+data["username"]+data["timeStamp"]+'</sub></span></td></tr>';
+            }else{
+                        html += '<tr><td><span class="round" style=" background-color:'+ backColor+';">'+data["text"]+'<sub style="color:black;padding:2px;">'+data["username"]+data["timeStamp"]+'</sub></span></td></tr>';
+            }
+          
+           
+          
+//            
+//            if(data["sendBy"] == "Me"){
+//                 html += '<div class="row"><div style="background-color:'+backColor+';float:right;" class="talk-bubble tri-right right-top border round"></div>';
+//            }else{
+//                html += '<div class="row"><div style="background-color:'+backColor+'" class="talk-bubble tri-right left-top border round"></div>'; 
+//            }
+//           
+//              html += '<div class="talktext">';
+//              html += '<p >'+data["text"]+'</p>';
+//              html += '<br />'+data["username"]
+//              html += '</div>';
+//              html += '</div>';
+              
+              $(html).hide().appendTo("#chatTable").fadeIn(1000);
+          $("html, body").animate({ scrollTop: $(document).height() }, 1000);
+
+        });
+        
+        function fadeout(){
+            username = $("#username").val();
+            if(username !== ""){
+                console.log(username);
+                $("#snackbar").removeClass("show");    
+            }
+        }
+
+    </script>
+    <style>
+         body{
+            background-color: black;
+        }
+        .myDiv{
+            position:fixed;
+            bottom:100;
+            width:100%;
+            text-align: center;
+        }
+
+        #message{
+            width:480px;
+            max-width:480px;
+            display:inline-block
+        }
+        .talk-bubble {
+            margin: 10px;
+            display: inline-block;
+            position: relative;
+            width: auto;
+            height: auto;
+            background-color: lightyellow;
+        }
+        .tri-right.border.left-top:before {
+            content: ' ';
+            position: absolute;
+            width: 0;
+            height: 0;
+            left: -40px;
+            right: auto;
+            top: -8px;
+            bottom: auto;
+            border: 32px solid;
+            border-color: #666 transparent transparent transparent;
+        }
+
+       .tri-right.left-top:after{
+            content: ' ';
+            position: absolute;
+            width: 0;
+            height: 0;
+            left: -20px;
+            right: auto;
+            top: 0px;
+            bottom: auto;
+            border: 22px solid;
+            border-color: lightyellow transparent transparent transparent;
+        }
+        .tri-right.border.right-top:before {
+            content: ' ';
+            position: absolute;
+            width: 0;
+            height: 0;
+            left: auto;
+            right: -40px;
+            top: -8px;
+            bottom: auto;
+            border: 32px solid;
+            border-color: #666 transparent transparent transparent;
+        }
+        .tri-right.right-top:after{
+            content: ' ';
+            position: absolute;
+            width: 0;
+            height: 0;
+            left: auto;
+            right: -20px;
+            top: 0px;
+            bottom: auto;
+            border: 20px solid;
+            border-color: lightyellow transparent transparent transparent;
+        }
+    .talktext{
+              padding: 1em;
+              text-align: left;
+              line-height: 1.5em;
+        }
+    .talktext p{
+              /* remove webkit p margins */
+              -webkit-margin-before: 0em;
+              -webkit-margin-after: 0em;
+                font-family: "Oswald";
+                color:whitesmoke;
+        }
+    
+    .border{
+            border: 8px solid #666;
+        }
+    
+    .round{
+            border-radius: 15px;
+            -webkit-border-radius: 15px;
+            -moz-border-radius: 15px;
+
+        }
+    h1{
+            font-family: "Arvo";
+            text-align: center;
+            font-size: 55px;
+        color:whitesmoke;
+        border-bottom: 1pt solid #555555;
+        }
+        
+    @media screen and (max-width: 600px){
+
+      #message{
+            width:280px;
+            max-width:280px;
+            display:inline-block
+        }
+        
+        h1{
+            font-size: 38px !important;
+        }
+        
+        .card input{
+            width:220px !important;
+        }
+
+     }
+    
+        @media screen and (max-width: 1200px){
+            .card{
+                left:24% !important;
+            }
+        }
+        
+        @media screen and (max-width: 1000px){
+            .card{
+                left:0% !important;
+                width:100% !important;
+            }
+        }
+        
+        .card{
+            visibility: hidden;
+            width: 60% ;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 2px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1;
+            left:20%;
+            bottom: 30px;
+            font-size: 17px;
+        }
+        
+        .center{
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .card h3{
+            font-family: "Arvo";
+           
+        }
+        
+        .card input{
+            width:420px;
+            max-width: 420px;
+            display: inline-block;
+        }
+        
+        #snackbar.show {
+            visibility: visible;
+            -webkit-animation: fadein 0.5s;
+            animation: fadein 0.5s;
+        }
+        
+        td{
+            padding:10px;
+               
+        }
+        
+        tr{
+      
+        }
+        
+        span{
+            padding:5px;
+            font-family: "Oswald";
+            font-size:18px;
+            color:whitesmoke;
+            display: inline-block;
+            max-width: 50% !important;   
+            
+        }
+        span sub{
+            font-size:12px;
+        }
+
+        @-webkit-keyframes fadein {
+            from {bottom: 0; opacity: 0;} 
+            to {bottom: 30px; opacity: 1;}
+        }
+
+        @keyframes fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+        }
+
+        @-webkit-keyframes fadeout {
+            from {bottom: 30px; opacity: 1;} 
+            to {bottom: 0; opacity: 0;}
+        }
+
+        @keyframes fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="card center" id="snackbar">
+        <div class="header">
+            <h3>ECHO NAME...</h3>
+        </div>
+        <hr />
+                  
+            <div class="form-horizontal ">
+                 <input id="username" type="text" class="form-control" />
+                 <button onclick="fadeout()" class="btn btn-warning" style="margin-left:-2px;margin-top-2px;min-height:36px">
+                 <i class="glyphicon glyphicon-send"></i></button>
+            </div>
+    </div>
+    <div class="container-fluid">
+        
+         <div class="">
+           <h1>TALK...</h1>
+         </div>
+        
+         <div id="chatlog">
+             <table id="chatTable" style="width:100%"></table>
+         </div>
+
+
+         <div class="form-horizontal myDiv container" >
+              <input id="message" type="text" placeholder="Enter text" class="form-control" />
+              <button class="btn btn-primary" onclick="sendMessage();"  style="margin-left:-2px;margin-top:-2px;min-height:36px">
+                <i class="glyphicon glyphicon-send"></i>
+              </button>
+             <a id="btnStart">
+               <img id="recImage" src="./recording2.png" width="35px">
+             </a>
+         </div>
+    </div>
+    
+</body>
+</html>

@@ -1,0 +1,135 @@
+<html>
+<head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <meta name="viewport" content="width=device-width" />
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald" >
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Arvo:400,700,400italic,700italic" >
+
+
+<link rel="stylesheet"  href="https://bootswatch.com/cerulean/bootstrap.min.css" >
+
+    <style>
+        body{
+            background-color: black;
+        }
+        .myDiv{
+            position:fixed;
+            bottom:100;
+            width:100%;
+            text-align: center;
+        }
+
+        #message{
+            width:480px;
+            max-width:480px;
+            display:inline-block
+        }
+        .talk-bubble {
+            margin: 40px;
+            display: inline-block;
+            position: relative;
+            width: auto;
+            height: auto;
+            background-color: lightyellow;
+        }
+        .tri-right.border.left-top:before {
+            content: ' ';
+            position: absolute;
+            width: 0;
+            height: 0;
+            left: -40px;
+            right: auto;
+            top: -8px;
+            bottom: auto;
+            border: 32px solid;
+            border-color: #666 transparent transparent transparent;
+        }
+
+    .tri-right.left-top:after{
+            content: ' ';
+            position: absolute;
+            width: 0;
+            height: 0;
+            left: -20px;
+            right: auto;
+            top: 0px;
+            bottom: auto;
+            border: 22px solid;
+            border-color: lightyellow transparent transparent transparent;
+        }
+    .talktext{
+              padding: 1em;
+              text-align: left;
+              line-height: 1.5em;
+        }
+    .talktext p{
+              /* remove webkit p margins */
+              -webkit-margin-before: 0em;
+              -webkit-margin-after: 0em;
+                font-family: "Oswald";
+        }
+        h1{
+            font-family: "Arvo";
+            text-align: center;
+            font-size: 55px;
+        }
+        
+    @media screen and (max-width: 600px){
+
+      #message{
+            width:280px;
+            max-width:280px;
+            display:inline-block
+        }
+        
+        h1{
+            font-size: 28px !important;
+        }
+
+     }
+
+
+
+    </style>
+
+         <script>
+
+      $(document).ready(function(){
+          $(".btn").click(function(){
+            console.log("click")
+              var html = '<div class="talk-bubble tri-right left-top">';
+              html += '<div class="talktext">';
+              html += '<p>This one adds a right triangle on the left, flush at the top by using .tri-right and .left-top to specify the location.</p>';
+              html += '</div>';
+              html += '</div>';
+
+              $(html).hide().appendTo("#chatlog").fadeIn(1000);
+            
+            });
+        });
+        
+       
+     </script>
+</head>
+    <body>
+       <div class="container-fluid">
+         <div class="">
+           <h1>SAY SOMETHING IF YOU KNOW NOTHING...</h1>
+         </div>
+         <div id="chatlog">
+
+         </div>
+
+
+         <div class="form-horizontal myDiv container" >
+          <input id="message" type="text" placeholder="Enter text" class="form-control" />
+          <button class="btn btn-primary"  style="margin-left:-2px;margin-top:-2px;min-height:36px">
+            <i class="glyphicon glyphicon-send"></i>
+          </button>
+         </div>
+       </div>
+    </body>
+</html>
