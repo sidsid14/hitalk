@@ -1,0 +1,18 @@
+App Documentation
+1. App is deployed on github on https://github.com/sidsid14/hitalk
+2. The public url is https://hitalk.herokuapp.com/
+
+Description
+1. Currently using websockets for communication between client and server.
+2. Server has been created on NodeJS.
+3. UI is simple HTML5 with bootstrap which means it is mobile responsive.
+
+Future-Requirements
+1.Give a public/private chat option at start of application with username.
+2.Start storing chat in file for each day by the name of the chat-room.
+3.Delete files of previous days.
+4.Need something to show the online users.
+5.Click on the online users to start a private chart with that person online.
+6.Seen msg functionality should be included.
+7.For any new message or number of unseen messages show that number in the browser's title.
+
