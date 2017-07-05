@@ -12,10 +12,12 @@
 <link rel="stylesheet"  href="https://bootswatch.com/cerulean/bootstrap.min.css" >
     <script>
         var host = location.origin.replace(/^http/,"ws");
-        var ws = new WebSocket(host,"echo-protocol");
-        //var ws = new WebSocket("ws://hitalk.herokuapp.com", "echo-protocol");
+        var ws = new WebSocket(host, "echo-protocol");
         var username ="";
         $(document).ready(function(){
+            
+     
+            
             
             $("#snackbar").addClass("show");
             
@@ -33,7 +35,7 @@
             speech.onstart = function(){
               $("#recImage").attr("src","./recording.gif");
               recognizing = true;
-              console.log("speaking");
+//              console.log("speaking");
             };
             
             speech.onresult = function(event){
@@ -67,10 +69,10 @@
             speech.onend = function(){
                 recognizing = false;
                 $("#recImage").attr("src","./recording2.png");
-                console.log("Recognition Stopped");
+//                console.log("Recognition Stopped");
             };
             
-            console.log("Recognition Started");
+//            console.log("Recognition Started");
         });            
             
         });//End of ready function
@@ -86,7 +88,7 @@
         function sendMessage(){
             var message = document.getElementById("message").value;
             message =message + "@@"+username;
-            console.log(message);
+//            console.log(message);
             ws.send(message);
             $("#message").val("");
         }
@@ -98,7 +100,7 @@
              var html ="";
             
             
-              if(data["sendBy"] == "Me"){
+              if(data["username"] == username){
                   html += '<tr align="right"><td width="200"><span class="round" style=" background-color:'+ backColor+';">'+data["text"]+'<sub style="color:black;padding:2px;">'+data["username"]+data["timeStamp"]+'</sub></span></td></tr>';
             }else{
                         html += '<tr><td><span class="round" style=" background-color:'+ backColor+';">'+data["text"]+'<sub style="color:black;padding:2px;">'+data["username"]+data["timeStamp"]+'</sub></span></td></tr>';
@@ -127,8 +129,32 @@
         function fadeout(){
             username = $("#username").val();
             if(username !== ""){
-                console.log(username);
-                $("#snackbar").removeClass("show");    
+//                console.log(username);
+                $("#snackbar").removeClass("show");
+            $.ajax({
+                url:"/load",
+                method:"GET",
+                success: (result) => {
+                    var data = result;
+//                    console.log(data);
+                    var html ="";
+                    for(var i=0; i<data.length ;i++){
+//                        console.log(data[i]);
+                        var backColor = data[i].color;
+                         
+                             if(data[i].username == username){
+                                  html += '<tr align="right"><td width="200"><span class="round" style=" background-color:'+ backColor+';">'+data[i].text+'<sub style="color:black;padding:2px;">'+data[i].username+data[i].timeStamp+'</sub></span></td></tr>';
+                            }else{
+                                        html += '<tr><td><span class="round" style=" background-color:'+ backColor+';">'+data[i].text+'<sub style="color:black;padding:2px;">'+data[i].username+data[i].timeStamp+'</sub></span></td></tr>';
+                            }
+                        
+                    }
+                    
+                    $(html).hide().appendTo("#chatTable").fadeIn(1000);
+                    $("html, body").animate({ scrollTop: $(document).height() }, 1000);
+                         
+                    }
+                });
             }
         }
 
